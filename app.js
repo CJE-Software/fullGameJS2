@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //canvas.width = window.innerWidth;
     //canvas.height = window.innerHeight;
 
+    //MAIN GAME FUNCTIONALITY CLASS
     class Game {
         constructor(ctx, width, height) {
             this.ctx = ctx;
@@ -26,35 +27,71 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 this.enemyTimer += deltaTime;
             } //all logic for adding new enemeies every 400milliseconds
-            this.enemies.forEach(object => object.update());
+            this.enemies.forEach(object => object.update(deltaTime));
         }
         draw() {
             this.enemies.forEach(object => object.draw(this.ctx));
         }
         #addNewEnemy() {
-            this.enemies.push(new Enemy(this));
+            this.enemies.push(new Worm(this));
+            this.enemies.sort(function(a, b) {
+                return a.y - b.y;
+            }); //this draws worms higher in y-axis before drawing worms lower in y.axis you could do oppisite by swapping to b.y - a.y
         }
-    };
+    }
 
-    //note if a method starts with hash# it is a private class method
 
+    //MAIN ENEMY CLASS
     class Enemy {
         constructor(game) {
             this.game = game;
+            /*
             this.x = this.game.width;
             this.y = Math.random() * this.game.height; //enemy spawn location is randomly chosen => somewhere on the canvas.height between 0 and 800px
             this.width = 100;
             this.height = 100;
+            */
             this.markedForDeletion = false;
         }
-        update() {
-            this.x--;
+        update(deltaTime) {
+            this.x -= this.velocityX * deltaTime;
             if (this.x < 0 - this.width) this.markedForDeletion = true;
         }
         draw(ctx) {
-            ctx.fillRect(this.x, this.y, this.width, this.height);
+            //ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.drawImage(this.image, 0, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height);
         }
-    };
+    }
+
+    //SUB ENEMY CLASS extending enemy class worm class includes all Enemy() properties
+    class Worm extends Enemy {
+        constructor(game) {
+            super(game);
+            this.spriteWidth = 229; //width of sprite divided by number of sprites horizontally
+            this.spriteHeight = 171;
+            this.width = this.spriteWidth / 2;
+            this.height = this.spriteHeight / 2; //preserves aspect ratio of spritesheet
+            this.x = this.game.width;
+            this.y = Math.random() * this.game.height; //enemy spawn location is randomly chosen => somewhere on the canvas.height between 0 and 800px
+            this.image = worm; //auto finds img id=worm from html file pro tip
+            this.velocityX = Math.random() * 0.1 + 0.1;
+        }
+    }
+
+    class Ghost extends Enemy {
+        constructor(game) {
+            super(game);
+            this.spriteWidth = 261; //width of sprite divided by number of sprites horizontally
+            this.spriteHeight = 209;
+            this.width = this.spriteWidth / 2;
+            this.height = this.spriteHeight / 2; //preserves aspect ratio of spritesheet
+            this.x = this.game.width;
+            this.y = Math.random() * this.game.height; //enemy spawn location is randomly chosen => somewhere on the canvas.height between 0 and 800px
+            this.image = ghost; //auto finds img id=ghost from html file pro tip
+            this.velocityX = Math.random() * 0.2 + 0.3;
+        }
+    }
+
 
     const game = new Game(ctx, canvas.width, canvas.height);
     let lastTime = 1;
@@ -86,5 +123,6 @@ by passing the keyword 'this' as a parameter to your private method #addNewEnemy
 adding deltaTime and logic to your Game class update() method provides a similar experience to all users regardless of the machine that runs your game, look into deltaTime you wont regret it!
 look into 'object pooling' for memory management so that your game doesnt overload itseld with memory from running too long for this game we will use a different method filtering an array using the this.markedForDeletion property in the enemy class we will be able to remove all objects in the array if this properties boolean value equals true
 using this logical statement in the enemy class update method checks to see if the object has already gone accross the screen and if so the enemey objects markedForDeletion property is set to true so it can be deleted  if (this.x < 0 - this.width) this.markedForDeletion = true;
+note if a method starts with hash# it is a private class method
 
 */
