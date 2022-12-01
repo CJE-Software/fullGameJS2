@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.#addNewEnemy();
             console.log(this.enemies);
         }
-        updtae() {
+        update() {
             this.enemies.forEach(object => object.update());
 
         }
@@ -43,13 +43,13 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const game = new Game();
-
     let lastTime = 1;
     function animate(timeStamp) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const deltaTime = timeStamp - lastTime;
         lastTime = timeStamp;
-        //somecode
+        game.update();
+        game.draw();
         requestAnimationFrame(animate);
     };
     animate(0);
